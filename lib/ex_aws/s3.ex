@@ -56,7 +56,7 @@ defmodule ExAws.S3 do
   import ExAws.S3.Utils
   alias ExAws.S3.Parsers
 
-  @type acl_opts :: [{:acl, canned_acl} | grant]
+  @type acl_opts :: {:acl, canned_acl} | grant
   @type grant :: {:grant_read, grantee}
     | {:grant_read_acp, grantee}
     | {:grant_write_acp, grantee}
@@ -286,13 +286,13 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket bucket access control"
-  @spec put_bucket_acl(bucket :: binary, opts :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_bucket_acl(bucket :: binary, opts :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_bucket_acl(bucket, grants) do
     request(:put, bucket, "/", headers: format_acl_headers(grants))
   end
 
   @doc "Update or create a bucket CORS policy"
-  @spec put_bucket_cors(bucket :: binary, cors_config :: %{}) :: ExAws.Operation.S3.t
+  @spec put_bucket_cors(bucket :: binary, cors_config :: map()) :: ExAws.Operation.S3.t
   def put_bucket_cors(bucket, cors_rules) do
     rules = cors_rules
     |> Enum.map(&build_cors_rule/1)
@@ -307,41 +307,41 @@ defmodule ExAws.S3 do
   end
 
   @doc "Update or create a bucket lifecycle configuration"
-  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: %{}) :: no_return
+  @spec put_bucket_lifecycle(bucket :: binary, lifecycle_config :: map()) :: no_return
   def put_bucket_lifecycle(bucket, _livecycle_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket policy configuration"
-  @spec put_bucket_policy(bucket :: binary, policy :: %{}) :: ExAws.Operation.S3.t
+  @spec put_bucket_policy(bucket :: binary, policy :: map()) :: ExAws.Operation.S3.t
   def put_bucket_policy(bucket, policy) do
     request(:put, bucket, "/", resource: "policy", body: policy)
   end
 
   @doc "Update or create a bucket logging configuration"
-  @spec put_bucket_logging(bucket :: binary, logging_config :: %{}) :: no_return
+  @spec put_bucket_logging(bucket :: binary, logging_config :: map()) :: no_return
   def put_bucket_logging(bucket, _logging_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket notification configuration"
-  @spec put_bucket_notification(bucket :: binary, notification_config :: %{}) :: no_return
+  @spec put_bucket_notification(bucket :: binary, notification_config :: map()) :: no_return
   def put_bucket_notification(bucket, _notification_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket replication configuration"
-  @spec put_bucket_replication(bucket :: binary, replication_config :: %{}) :: no_return
+  @spec put_bucket_replication(bucket :: binary, replication_config :: map()) :: no_return
   def put_bucket_replication(bucket, _replication_config) do
     raise "not yet implemented"
     request(:put, bucket, "/")
   end
 
   @doc "Update or create a bucket tagging configuration"
-  @spec put_bucket_tagging(bucket :: binary, tags :: %{}) :: no_return
+  @spec put_bucket_tagging(bucket :: binary, tags :: map()) :: no_return
   def put_bucket_tagging(bucket, _tags) do
     raise "not yet implemented"
     request(:put, bucket, "/")
@@ -401,8 +401,8 @@ defmodule ExAws.S3 do
 
     body = [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
-      quiet,
       "<Delete>",
+      quiet,
       objects_xml,
       "</Delete>"
     ]
@@ -646,7 +646,7 @@ defmodule ExAws.S3 do
   end
 
   @doc "Create or update an object's access control FIXME"
-  @spec put_object_acl(bucket :: binary, object :: binary, acl :: acl_opts) :: ExAws.Operation.S3.t
+  @spec put_object_acl(bucket :: binary, object :: binary, acl :: [acl_opts]) :: ExAws.Operation.S3.t
   def put_object_acl(bucket, object, acl) do
     headers = acl |> Map.new |> format_acl_headers
     request(:put, bucket, object, headers: headers, resource: "acl")
@@ -866,7 +866,7 @@ defmodule ExAws.S3 do
   `:query_params` to a list of `{"key", "value"}` pairs. Useful if you are uploading parts of
   a multipart upload directly from the browser.
   """
-  @spec presigned_url(config :: %{}, http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
+  @spec presigned_url(config :: map, http_method :: atom, bucket :: binary, object :: binary, opts :: presigned_url_opts) :: {:ok, binary} | {:error, binary}
   @one_week 60 * 60 * 24 * 7
   def presigned_url(config, http_method, bucket, object, opts \\ []) do
     expires_in = Keyword.get(opts, :expires_in, 3600)
@@ -891,10 +891,11 @@ defmodule ExAws.S3 do
   end
 
   defp url_to_sign(bucket, object, config, virtual_host) do
+    port = sanitized_port_component(config)
     object = ensure_slash(object)
     case virtual_host do
-      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{object}"
-      false -> "#{config[:scheme]}#{config[:host]}/#{bucket}#{object}"
+      true -> "#{config[:scheme]}#{bucket}.#{config[:host]}#{port}#{object}"
+      false -> "#{config[:scheme]}#{config[:host]}#{port}/#{bucket}#{object}"
     end
   end
 

@@ -4,7 +4,7 @@ defmodule ExAws.SNS do
   @moduledoc """
   Operations on AWS SNS
 
-  http://docs.aws.amazon.com/sns/latest/APIReference/API_Operations.html
+  http://docs.aws.amazon.com/sns/latest/api/API_Operations.html
   """
 
   ## Topics
@@ -249,6 +249,23 @@ defmodule ExAws.SNS do
     })
   end
 
+  @doc "List phone numbers opted out"
+  @spec list_phone_numbers_opted_out() :: ExAws.Operation.Query.t
+  def list_phone_numbers_opted_out() do
+    request(:list_phone_numbers_opted_out, %{})
+  end
+
+  @spec list_phone_numbers_opted_out(next_token :: binary) :: ExAws.Operation.Query.t
+  def list_phone_numbers_opted_out(next_token) do
+    request(:list_phone_numbers_opted_out, %{"NextToken" => next_token})
+  end
+
+  @doc "Opt in phone number"
+  @spec opt_in_phone_number(phone_number :: binary) :: ExAws.Operation.Query.t
+  def opt_in_phone_number(phone_number) do
+    request(:opt_in_phone_number, %{"phoneNumber" => phone_number})
+  end
+
   ## Endpoints
   ######################
 
@@ -282,6 +299,22 @@ defmodule ExAws.SNS do
     request(:delete_endpoint, %{
       "EndpointArn" => endpoint_arn
     })
+  end
+
+  @type list_endpoints_by_platform_application_opt :: {:next_token, binary}
+
+  @doc "List endpooints and endpoint attributes for devices in a supported push notification service"
+  @spec list_endpoints_by_platform_application(topic_arn :: topic_arn) :: ExAws.Operation.Query.t
+  @spec list_endpoints_by_platform_application(topic_arn :: topic_arn, [list_endpoints_by_platform_application_opt]) :: ExAws.Operation.Query.t
+  def list_endpoints_by_platform_application(platform_application_arn, opts \\ []) do
+    params = case opts do
+              [next_token: next_token] ->
+                %{ "PlatformApplicationArn" => platform_application_arn,
+                   "NextToken" => next_token }
+               _ ->
+                 %{ "PlatformApplicationArn" => platform_application_arn }
+            end
+    request(:list_endpoints_by_platform_application, params)
   end
 
   ## Messages

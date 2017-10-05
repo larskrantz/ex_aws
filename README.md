@@ -1,12 +1,15 @@
 ExAws
 =====
+[![Hex.pm](https://img.shields.io/hexpm/v/ex_aws.svg)](https://hex.pm/packages/ex_aws)
+[![Build Docs](https://img.shields.io/badge/hexdocs-release-blue.svg)](https://hexdocs.pm/ex_aws/ExAws.html)
 [![Build Status](https://travis-ci.org/CargoSense/ex_aws.svg?branch=master)](https://travis-ci.org/CargoSense/ex_aws)
 
 A flexible easy to use set of AWS APIs.
 
+- `ExAws.Cloudwatch`
 - `ExAws.Dynamo`
 - `ExAws.DynamoStreams`
-- `ExAws.EC2`
+- `ExAws.ElasticTranscoder`
 - `ExAws.Firehose`
 - `ExAws.Kinesis`
 - `ExAws.KMS`
@@ -18,6 +21,9 @@ A flexible easy to use set of AWS APIs.
 - `ExAws.SNS`
 - `ExAws.SQS`
 - `ExAws.STS`
+- `ExAws.Cloudformation (BETA)`
+- `ExAws.EC2 (BETA)`
+- `ExAws.ECS (COMING SOON)`
 
 ## 1.0.0 Changes
 

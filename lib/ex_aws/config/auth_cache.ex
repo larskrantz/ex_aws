@@ -64,8 +64,8 @@ defmodule ExAws.Config.AuthCache do
   def refresh_in(expiration) do
     expiration = expiration |> ExAws.Utils.iso_z_to_secs
     time_to_expiration = expiration - ExAws.Utils.now_in_seconds
-    refresh_in = time_to_expiration - 2 * 60 # check two min prior to expiration
-    refresh_in * 1000
+    refresh_in = time_to_expiration - 5 * 60 # check five mins prior to expiration
+    max(0, refresh_in * 1000) # check now if we should have checked in the past
   end
 
 end

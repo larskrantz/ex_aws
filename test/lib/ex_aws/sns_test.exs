@@ -184,6 +184,19 @@ defmodule ExAws.SNSTest do
       subscription_arn).params
   end
 
+  test "#list_phone_numbers_opted_out" do
+    expected = %{"Action" => "ListPhoneNumbersOptedOut"}
+    assert expected == SNS.list_phone_numbers_opted_out().params
+
+    expected = %{"Action" => "ListPhoneNumbersOptedOut", "NextToken" => "123456789"}
+    assert expected == SNS.list_phone_numbers_opted_out("123456789").params
+  end
+
+  test "#opt_in_phone_number" do
+    expected = %{"Action" => "OptInPhoneNumber", "phoneNumber" => "+15005550006"}
+    assert expected == SNS.opt_in_phone_number("+15005550006").params
+  end
+
   # Test SMS request structure. Credentials via (https://www.twilio.com/docs/api/rest/test-credentials).
   test "#publish_sms" do
     expected = %{
@@ -241,6 +254,14 @@ defmodule ExAws.SNSTest do
       "EndpointArn" => "test-endpoint-arn"
     }
     assert expected == SNS.delete_endpoint("test-endpoint-arn").params
+  end
+
+  test "list_endpoints_by_platform_application" do
+    expected = %{
+      "Action" => "ListEndpointsByPlatformApplication",
+      "PlatformApplicationArn" => "arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn"
+    }
+    assert expected == SNS.list_endpoints_by_platform_application("arn:aws:sns:us-west-1:00000000000:app/APNS/test-arn").params
   end
 
   describe "verify_message/1" do
